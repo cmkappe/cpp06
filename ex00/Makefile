@@ -1,7 +1,7 @@
 NAME = ScalarConverter
 
 CXX = c++
-CXXFLAGS = -Wall -Wextra -std=c++17 -fsanitize=address
+CXXFLAGS = -Wall -Wextra -Werror -std=c++17 -fsanitize=address
 
 SRC = main.cpp \
 	  ScalarConverter.cpp
