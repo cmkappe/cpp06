@@ -6,7 +6,7 @@
 /*   By: ckappe <ckappe@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/29 20:49:38 by ckappe            #+#    #+#             */
-/*   Updated: 2026/03/30 17:28:44 by ckappe           ###   ########.fr       */
+/*   Updated: 2026/03/30 18:15:09 by ckappe           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,15 +127,15 @@ static void printImpossibleAll()
 
 static void printConvertedValues(double dVal)
 {
-    // We cache these checks once to keep the output logic readable below.
+    // cache these checks once to keep the output logic readable below
     const bool isNaN = std::isnan(dVal);
     const bool isInf = std::isinf(dVal);
 
-    // Subject-style formatting: whole numbers are shown as x.0 / x.0f.
+    // Subject-style formatting: whole numbers are shown as x.0 / x.0f
     const bool isWholeNumber = std::isfinite(dVal)
         && dVal == static_cast<long long>(dVal);
 
-    // Some casts simply do not make sense (NaN/inf or out of target range).
+    // some casts simply don't make sense (NaN/inf or out of range).
     const bool charImpossible = isNaN || isInf
         || dVal < std::numeric_limits<char>::min()
         || dVal > std::numeric_limits<char>::max();
@@ -145,7 +145,7 @@ static void printConvertedValues(double dVal)
 
     // CHAR output:
     // - impossible if conversion cannot be represented
-    // - Non displayable for ASCII control chars (e.g. 0, 10)
+    // - Non displayable for ASCII control chars (e.g. 0 = nul , 10 = nl)
     // - printable characters are shown in single quotes
     std::cout << "char: ";
     if (charImpossible)
@@ -155,14 +155,13 @@ static void printConvertedValues(double dVal)
     else
         std::cout << "'" << static_cast<char>(dVal) << "'" << std::endl;
 
-    // INT output: print impossible on invalid range / special values
     std::cout << "int: ";
     if (intImpossible)
         std::cout << "impossible" << std::endl;
     else
         std::cout << static_cast<int>(dVal) << std::endl;
 
-    // FLOAT output keeps pseudo-literals explicit and appends the mandatory 'f'
+    // FLOAT output keeps pseudo-literals explicit and adds the mandatory 'f'
     std::cout << "float: ";
     if (isNaN)
         std::cout << "nanf" << std::endl;
@@ -178,7 +177,7 @@ static void printConvertedValues(double dVal)
         std::cout << std::defaultfloat;
     }
 
-    // DOUBLE output mirrors float rules but without the trailing 'f'
+    // DOUBLE output same as float rules but without the trailing 'f'
     std::cout << "double: ";
     if (isNaN)
         std::cout << "nan" << std::endl;
