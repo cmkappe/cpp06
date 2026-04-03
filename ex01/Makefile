@@ -1,10 +1,10 @@
-NAME = Serialization
+NAME = Serializer
 
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++17 -fsanitize=address
 
 SRC = main.cpp \
-	  	Serialization.cpp
+	  	Serializer.cpp
 OBJDIR = obj
 OBJ = $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
 
@@ -15,7 +15,7 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME)
 
-$(OBJDIR)/%.o: %.cpp Serialization.hpp | $(OBJDIR)
+$(OBJDIR)/%.o: %.cpp Serializer.hpp | $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJDIR):
