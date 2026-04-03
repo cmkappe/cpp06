@@ -6,7 +6,7 @@
 /*   By: ckappe <ckappe@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/29 20:49:38 by ckappe            #+#    #+#             */
-/*   Updated: 2026/03/30 18:15:09 by ckappe           ###   ########.fr       */
+/*   Updated: 2026/04/03 17:07:26 by ckappe           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 #include <iomanip>
 #include <limits>
 
-
 enum Type { 
     CHAR, 
     INT, 
@@ -27,8 +26,6 @@ enum Type {
     SPECIAL, // for nan, inf, -inf
     INVALID 
 };
-
-
 
 ScalarConverter::ScalarConverter() {}
 ScalarConverter::ScalarConverter(const ScalarConverter&) {}
