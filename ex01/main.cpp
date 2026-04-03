@@ -6,7 +6,7 @@
 /*   By: ckappe <ckappe@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 14:40:24 by ckappe            #+#    #+#             */
-/*   Updated: 2026/04/03 14:40:29 by ckappe           ###   ########.fr       */
+/*   Updated: 2026/04/03 17:12:38 by ckappe           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ static void printData(const std::string& label, Data* ptr)
 
 int main()
 {
-	std::cout << BOLD << YELLOW << "=== Serialization Test ===" << RESET
+	std::cout << BOLD << YELLOW << "\n\n=== Serialization Test ===" << RESET
 			  << "\n\n";
 
 	bool allPassed = true;
@@ -97,7 +97,7 @@ int main()
 	std::cout << BOLD << "Final result: "
 			  << (allPassed ? GREEN : RED)
 			  << (allPassed ? "PASS" : "FAIL")
-			  << RESET << "\n";
+			  << RESET << "\n\n\n";
 
 	delete heapData;
 	return (allPassed ? 0 : 1);
