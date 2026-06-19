@@ -6,7 +6,7 @@
 /*   By: ckappe <ckappe@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/29 20:49:38 by ckappe            #+#    #+#             */
-/*   Updated: 2026/04/03 17:07:26 by ckappe           ###   ########.fr       */
+/*   Updated: 2026/06/19 22:49:14 by ckappe           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,14 @@ enum Type {
     INT, 
     FLOAT,
     DOUBLE, 
-    SPECIAL, // for nan, inf, -inf
     INVALID 
 };
+
+/*
+nanf: NaN = Not a Number (result of undefined math operations) e.. g. 0.0f/0.0f
+inff: positive/negative infinity (result of overflow) e. g. 1.0f/0.0f
+with f at the end => float literals, without f => double
+Specials need to be hadled manually, because they don’t behave like normal numbers (conversions to char or int are impossible) */
 
 ScalarConverter::ScalarConverter() {}
 ScalarConverter::ScalarConverter(const ScalarConverter&) {}
@@ -41,41 +46,31 @@ static bool isFloatOrDouble(const std::string& literal, bool& isFloat)
     bool hasDot = false;
     bool hasDigit = false;
 
-    // optional sign
+    // check for optional sign
     if (literal[i] == '+' || literal[i] == '-')
         i++;
 
-    for (; i < literal.length(); i++)
-    {
-        if (std::isdigit(static_cast<unsigned char>(literal[i])))
-        {
+    for (; i < literal.length(); i++){
+        if (std::isdigit(static_cast<unsigned char>(literal[i]))){
             hasDigit = true;
         }
-        else if (literal[i] == '.')
-        {
+        else if (literal[i] == '.'){
             if (hasDot)
                 return false; // second dot -> invalid
             hasDot = true;
         }
-        else if (literal[i] == 'f' && i == literal.length() - 1)
-        {
+        else if (literal[i] == 'f' && i == literal.length() - 1){
             isFloat = true;
             return hasDigit; // must have at least one digit
         }
-        else
-        {
+        else {
             return false;
         }
     }
     isFloat = false;
-    return hasDot && hasDigit;
+    return (hasDot && hasDigit);
 }
 
-// --- SPECIALS ---
-// nanf: NaN = Not a Number (result of undefined math operations) e.. g. 0.0f/0.0f
-// inff: positive/negative infinity (result of overflow) e. g. 1.0f/0.0f
-// with f at the end => float literals, without f => double
-// Specials need to be hadled manually, because they don’t behave like normal numbers (conversions to char or int are impossible)
 
 static Type detectType(const std::string& literal)
 {
@@ -84,9 +79,14 @@ static Type detectType(const std::string& literal)
 
     bool isFloat = false;
     
-    if (literal == "nan" || literal == "+inf" || literal == "-inf"
+/*     if (literal == "nan" || literal == "+inf" || literal == "-inf"
         || literal == "nanf" || literal == "+inff" || literal == "-inff")
-        return SPECIAL;
+        return SPECIAL; */
+
+    if (literal == "nan" || literal == "+inf" || literal == "-inf")
+        return DOUBLE;
+    if (literal == "nanf" || literal == "+inff" || literal == "-inf")
+        return FLOAT;
         
     if (literal.length() == 1
         && !std::isdigit(static_cast<unsigned char>(literal[0]))
@@ -96,8 +96,7 @@ static Type detectType(const std::string& literal)
     // Fast-path for pure signed/unsigned integer literals (e.g. -42, +7, 0)
     size_t i = (literal[0] == '-' || literal[0] == '+') ? 1 : 0;
     bool onlyDigits = (i < literal.length());
-    while (i < literal.length() && onlyDigits)
-    {
+    while (i < literal.length() && onlyDigits){
         if (!std::isdigit(static_cast<unsigned char>(literal[i])))
             onlyDigits = false;
         ++i;
@@ -105,8 +104,7 @@ static Type detectType(const std::string& literal)
     if (onlyDigits)
         return INT;
         
-    if (isFloatOrDouble(literal, isFloat))
-    {
+    if (isFloatOrDouble(literal, isFloat)){
         if (isFloat)
             return FLOAT;
         return DOUBLE;
@@ -164,8 +162,7 @@ static void printConvertedValues(double dVal)
         std::cout << "nanf" << std::endl;
     else if (isInf)
         std::cout << (dVal < 0 ? "-inff" : "+inff") << std::endl;
-    else
-    {
+    else {
         float fVal = static_cast<float>(dVal);
         if (isWholeNumber)
             std::cout << std::fixed << std::setprecision(1) << fVal << "f" << std::endl;
@@ -180,8 +177,7 @@ static void printConvertedValues(double dVal)
         std::cout << "nan" << std::endl;
     else if (isInf)
         std::cout << (dVal < 0 ? "-inf" : "+inf") << std::endl;
-    else
-    {
+    else {
         if (isWholeNumber)
             std::cout << std::fixed << std::setprecision(1) << dVal << std::endl;
         else
@@ -195,28 +191,24 @@ void ScalarConverter::convert(const std::string& literal)
     Type type = detectType(literal);
     double dVal = 0.0;
 
-    if (type == SPECIAL)
-    {
+    // handle pseudo-literals so output is stable
+    if (literal == "nan" || literal == "+inf" || literal == "-inf"
+        || literal == "nanf" || literal == "+inff" || literal == "-inff"){
         std::string floatLiteral;
         std::string doubleLiteral;
 
-        // handle pseudo-literals so output is stable
-        if (literal == "nan" || literal == "nanf")
-        {
+        if (literal == "nan" || literal == "nanf") {
             floatLiteral = "nanf";
             doubleLiteral = "nan";
         }
-        else if (literal == "+inf" || literal == "+inff")
-        {
+        else if (literal == "+inf" || literal == "+inff") {
             floatLiteral = "+inff";
             doubleLiteral = "+inf";
         }
-        else
-        {
+        else {
             floatLiteral = "-inff";
             doubleLiteral = "-inf";
         }
-
         std::cout << "char: impossible" << std::endl;
         std::cout << "int: impossible" << std::endl;
         std::cout << "float: " << floatLiteral << std::endl;
@@ -224,16 +216,14 @@ void ScalarConverter::convert(const std::string& literal)
         return;
     }
 
-    if (type == INVALID)
-    {
+    if (type == INVALID) {
         printImpossibleAll();
         return;
     }
 
     try // Any malformed input or overflow in stoi/stof/stod maps to "impossible" outputs
     {
-        switch (type)
-        {
+        switch (type) {
             case CHAR:
                 dVal = static_cast<double>(literal[0]);
                 break;
@@ -251,11 +241,9 @@ void ScalarConverter::convert(const std::string& literal)
                 return;
         }
     }
-    catch (const std::exception&)
-    {
+    catch (const std::exception&) {
         printImpossibleAll();
         return;
     }
-
     printConvertedValues(dVal);
 }
