@@ -6,7 +6,7 @@
 /*   By: ckappe <ckappe@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/29 20:49:38 by ckappe            #+#    #+#             */
-/*   Updated: 2026/06/19 22:49:14 by ckappe           ###   ########.fr       */
+/*   Updated: 2026/06/19 22:53:13 by ckappe           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,6 @@ static bool isFloatOrDouble(const std::string& literal, bool& isFloat)
     isFloat = false;
     return (hasDot && hasDigit);
 }
-
 
 static Type detectType(const std::string& literal)
 {
