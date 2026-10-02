@@ -6,14 +6,13 @@
 /*   By: ckappe <ckappe@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 17:27:14 by ckappe            #+#    #+#             */
-/*   Updated: 2026/06/20 20:16:50 by ckappe           ###   ########.fr       */
+/*   Updated: 2026/10/02 16:28:29 by ckappe           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Base.hpp"
 
 Base* generate(void) {
-  std::srand(static_cast<unsigned int>(std::time(0)));
   int r = std::rand() % 3;
   switch (r) {
   case 0:
@@ -26,6 +25,7 @@ Base* generate(void) {
 }
 
 void identify(Base* p){
+    // if p actually points to an A object, then the cast succeeds
     // Pointer dynamic_cast returns NULL on mismatch, so we can chain checks
     if (dynamic_cast<A*>(p))
         std::cout << "A\n";
@@ -38,6 +38,7 @@ void identify(Base* p){
 }
 
 void identify(Base& p){
+    // instead of pointer, usess a reference: cannot be NULL, so using exceptions instead
     try
     {
         // Reference dynamic_cast throws std::bad_cast on mismatch

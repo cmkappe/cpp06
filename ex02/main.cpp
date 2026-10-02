@@ -6,7 +6,7 @@
 /*   By: ckappe <ckappe@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 17:26:12 by ckappe            #+#    #+#             */
-/*   Updated: 2026/04/03 17:37:00 by ckappe           ###   ########.fr       */
+/*   Updated: 2026/10/02 16:24:39 by ckappe           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,8 @@ static void runSingleCase(const std::string& label, Base* ptr)
     std::cout << std::endl;
 }
 
+// "If I only have a Base* or Base&, can I figure out whether the object is actually an A, B, or C?"
+// basically runtime type identification of A/B/C using only pointer/reference
 int main()
 {
     std::srand(static_cast<unsigned int>(std::time(0)));
