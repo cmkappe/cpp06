@@ -6,7 +6,7 @@
 /*   By: ckappe <ckappe@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/29 20:49:38 by ckappe            #+#    #+#             */
-/*   Updated: 2026/10/02 14:16:38 by ckappe           ###   ########.fr       */
+/*   Updated: 2026/10/02 17:01:34 by ckappe           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,8 +127,7 @@ static void printConvertedValues(double dVal)
     // subject-style formatting: whole numbers are shown as x.0 / x.0f
     // so this checks "Does this double contain a whole number, with no decimal part?"
     // effectively checking 42.0 == 42 true; 42.7 == 42 false
-    const bool isWholeNumber = std::isfinite(dVal)
-        && dVal == static_cast<long long>(dVal);
+    const bool isWholeNumber = std::isfinite(dVal) && std::trunc(dVal) == dVal;
 
     // checks if char is representable as ASCII
     const bool charImpossible = isNaN || isInf
@@ -166,10 +165,13 @@ static void printConvertedValues(double dVal)
         std::cout << (dVal < 0 ? "-inff" : "+inff") << std::endl;
     else {
         float fVal = static_cast<float>(dVal);
-        if (isWholeNumber)
+        const bool floatIsWholeNumber = std::isfinite(fVal)
+            && std::trunc(fVal) == fVal;
+        if (floatIsWholeNumber)
             std::cout << std::fixed << std::setprecision(1) << fVal << "f" << std::endl;
         else
-            std::cout << fVal << "f" << std::endl;
+            std::cout << std::setprecision(std::numeric_limits<float>::max_digits10)
+                << fVal << "f" << std::endl;
         std::cout << std::defaultfloat;
     }
 
@@ -183,7 +185,8 @@ static void printConvertedValues(double dVal)
         if (isWholeNumber)
             std::cout << std::fixed << std::setprecision(1) << dVal << std::endl;
         else
-            std::cout << dVal << std::endl;
+            std::cout << std::setprecision(std::numeric_limits<double>::max_digits10)
+                << dVal << std::endl;
         std::cout << std::defaultfloat;
     }
 }
