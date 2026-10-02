@@ -6,7 +6,7 @@
 /*   By: ckappe <ckappe@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/29 20:49:38 by ckappe            #+#    #+#             */
-/*   Updated: 2026/06/19 22:53:13 by ckappe           ###   ########.fr       */
+/*   Updated: 2026/10/02 14:16:38 by ckappe           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,15 @@ ScalarConverter::ScalarConverter() {}
 ScalarConverter::ScalarConverter(const ScalarConverter&) {}
 ScalarConverter& ScalarConverter::operator=(const ScalarConverter&) { return *this; }
 ScalarConverter::~ScalarConverter() {}
+
+
+static void printImpossibleAll()
+{
+    std::cout << "char: impossible" << std::endl;
+    std::cout << "int: impossible" << std::endl;
+    std::cout << "float: impossible" << std::endl;
+    std::cout << "double: impossible" << std::endl;
+}
 
 static bool isFloatOrDouble(const std::string& literal, bool& isFloat)
 {
@@ -78,19 +87,15 @@ static Type detectType(const std::string& literal)
 
     bool isFloat = false;
     
-/*     if (literal == "nan" || literal == "+inf" || literal == "-inf"
-        || literal == "nanf" || literal == "+inff" || literal == "-inff")
-        return SPECIAL; */
-
-    if (literal == "nan" || literal == "+inf" || literal == "-inf")
-        return DOUBLE;
-    if (literal == "nanf" || literal == "+inff" || literal == "-inf")
-        return FLOAT;
-        
     if (literal.length() == 1
         && !std::isdigit(static_cast<unsigned char>(literal[0]))
         && std::isprint(static_cast<unsigned char>(literal[0])))
         return CHAR;
+    
+    if (literal == "nan" || literal == "+inf" || literal == "-inf")
+        return DOUBLE;
+    if (literal == "nanf" || literal == "+inff" || literal == "-inff")
+        return FLOAT;
         
     // Fast-path for pure signed/unsigned integer literals (e.g. -42, +7, 0)
     size_t i = (literal[0] == '-' || literal[0] == '+') ? 1 : 0;
@@ -111,28 +116,25 @@ static Type detectType(const std::string& literal)
     return INVALID;
 }
 
-static void printImpossibleAll()
-{
-    std::cout << "char: impossible" << std::endl;
-    std::cout << "int: impossible" << std::endl;
-    std::cout << "float: impossible" << std::endl;
-    std::cout << "double: impossible" << std::endl;
-}
+
 
 static void printConvertedValues(double dVal)
 {
-    // cache these checks once to keep the output logic readable below
+    // keep these checks once to keep the output logic readable below
     const bool isNaN = std::isnan(dVal);
     const bool isInf = std::isinf(dVal);
 
-    // Subject-style formatting: whole numbers are shown as x.0 / x.0f
+    // subject-style formatting: whole numbers are shown as x.0 / x.0f
+    // so this checks "Does this double contain a whole number, with no decimal part?"
+    // effectively checking 42.0 == 42 true; 42.7 == 42 false
     const bool isWholeNumber = std::isfinite(dVal)
         && dVal == static_cast<long long>(dVal);
 
-    // some casts simply don't make sense (NaN/inf or out of range).
+    // checks if char is representable as ASCII
     const bool charImpossible = isNaN || isInf
-        || dVal < std::numeric_limits<char>::min()
-        || dVal > std::numeric_limits<char>::max();
+        || dVal < 0
+        || dVal > 127;
+    // some casts don't make sense (NaN/inf or out of range)
     const bool intImpossible = isNaN || isInf
         || dVal < std::numeric_limits<int>::min()
         || dVal > std::numeric_limits<int>::max();
@@ -149,6 +151,7 @@ static void printConvertedValues(double dVal)
     else
         std::cout << "'" << static_cast<char>(dVal) << "'" << std::endl;
 
+    // INT output:
     std::cout << "int: ";
     if (intImpossible)
         std::cout << "impossible" << std::endl;
@@ -193,20 +196,20 @@ void ScalarConverter::convert(const std::string& literal)
     // handle pseudo-literals so output is stable
     if (literal == "nan" || literal == "+inf" || literal == "-inf"
         || literal == "nanf" || literal == "+inff" || literal == "-inff"){
-        std::string floatLiteral;
         std::string doubleLiteral;
+        std::string floatLiteral;
 
         if (literal == "nan" || literal == "nanf") {
-            floatLiteral = "nanf";
             doubleLiteral = "nan";
+            floatLiteral = "nanf";
         }
         else if (literal == "+inf" || literal == "+inff") {
-            floatLiteral = "+inff";
             doubleLiteral = "+inf";
+            floatLiteral = "+inff";
         }
         else {
-            floatLiteral = "-inff";
             doubleLiteral = "-inf";
+            floatLiteral = "-inff";
         }
         std::cout << "char: impossible" << std::endl;
         std::cout << "int: impossible" << std::endl;
@@ -219,15 +222,16 @@ void ScalarConverter::convert(const std::string& literal)
         printImpossibleAll();
         return;
     }
-
-    try // Any malformed input or overflow in stoi/stof/stod maps to "impossible" outputs
+    
+    // Any malformed input or overflow in stoi/stof/stod goes to "impossible" outputs
+    try
     {
         switch (type) {
             case CHAR:
                 dVal = static_cast<double>(literal[0]);
                 break;
             case INT:
-                dVal = static_cast<double>(std::stoi(literal));
+                dVal = std::stod(literal);
                 break;
             case FLOAT:
                 dVal = static_cast<double>(std::stof(literal));
